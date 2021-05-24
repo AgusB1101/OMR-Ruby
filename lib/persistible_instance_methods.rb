@@ -1,3 +1,0 @@
-module PersistibleInstance
-
-end
