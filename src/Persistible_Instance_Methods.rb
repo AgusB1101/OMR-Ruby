@@ -1,6 +1,6 @@
 require_relative 'tables/Table'
 require_relative 'open_classes/Symbol'
-require_relative 'errors'
+require_relative 'Errors'
 
 module PersistibleInstance
   attr_reader :id
@@ -14,12 +14,13 @@ module PersistibleInstance
   end
 
   def refresh!
-    if was_persisted?
-      last_saved = self.class.my_table.read(self.id)
-      self.attr_persistibles.each { |_, attr| self.send attr.name.to_writer, last_saved.send(attr) }
-    else
-      raise ObjectNotPersistedError
+    unless was_persisted?
+       raise ObjectNotPersistedError
     end
+
+    last_saved = self.class.my_table.read(self.id)
+    self.class.attr_persistibles.each { |key, attr| self.instance_variable_set attr.name.to_attr, last_saved.send(attr.name) }
+    self
   end
 
   def forget!
